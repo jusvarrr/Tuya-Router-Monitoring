@@ -1,0 +1,10 @@
+{
+    "files.associations": {
+        "cjson.h": "c",
+        "mqtt_client_interface.h": "c",
+        "unistd.h": "c",
+        "tuya_log.h": "c",
+        "log.h": "c",
+        "stdlib.h": "c"
+    }
+}
