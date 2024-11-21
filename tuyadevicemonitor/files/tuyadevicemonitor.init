@@ -9,7 +9,6 @@ start_service() {
     local secret
     local product_id
     local daemonize
-    local commandline
 
     config_load 'tuyadevicemonitor'
 
@@ -18,21 +17,18 @@ start_service() {
     config_get secret tuyadm 'secret'
     config_get product_id tuyadm 'product_id'
     config_get daemonize tuyadm 'daemonize' '0'
-    config_get commandline tuyadm 'commandline' '0'
+
+    local command_args=" -d $device_id -s $secret -p $product_id"
 
     if [ "$enabled" -eq 1 ]; then
-        
-        if [ "$daemonize" -eq 1 ]; then
-            local command_args=" -d $device_id -s $secret -p $product_id -D"
-        else
-            local command_args=" -d $device_id -s $secret -p $product_id"
-        fi
-
-        echo "Command to run args: $device_id $product_id $secret"
 
         procd_open_instance
 
-        procd_set_param command $commandline
+        procd_set_param command /usr/bin/tuyadevicemonitor
+        
+        if [ "$daemonize" -eq 1 ]; then
+            procd_append_param $command_args -D
+        fi
         procd_append_param command $command_args
         procd_set_param pidfile /var/run/tuyadevicemonitor.pid
         procd_set_param file /etc/config/tuyadevicemonitor
