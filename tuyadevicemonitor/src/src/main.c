@@ -1,17 +1,16 @@
-#include "argp_parse.h"
-#include "daemon.h"
-#include "sys_param.h"
+#include <argp_parse.h>
+#include <daemon.h>
 #include <stdlib.h>
-#include "time.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <signal.h>
 
-#include "tuya_functions.h"
+#include <tuya_functions.h>
 
 #include <syslog.h>
 
 void sig_handler(int signum){
+    cleanup_ubus_context();
     int disc = disconnect();
     if (disc == 0)
         syslog(LOG_USER | LOG_INFO, "Disconnected gracefully");
@@ -46,6 +45,7 @@ int main(int argc, char **argv)
     if (parse_result != 0) {
         syslog(LOG_USER | LOG_ERR, "Init parsing failed");
         closelog();
+        cleanup_ubus_context();
         return EXIT_FAILURE;
     }
     // turn this process into a daemon
@@ -56,6 +56,7 @@ int main(int argc, char **argv)
         {
             syslog(LOG_USER | LOG_ERR, "error starting");
             closelog();
+            cleanup_ubus_context();
             return EXIT_FAILURE;
         }
     }
@@ -68,6 +69,7 @@ int main(int argc, char **argv)
     if (ret != OPRT_OK) {
         syslog(LOG_USER | LOG_ERR, "Failed to connect to Tuya cloud. Error: %d", ret);
         closelog();
+        cleanup_ubus_context();
         return EXIT_FAILURE;
     }
     while(1){
@@ -76,6 +78,7 @@ int main(int argc, char **argv)
             syslog(LOG_USER | LOG_INFO, "%d", ret);
             syslog(LOG_USER | LOG_INFO, "Failed to send data to cloud. Disconnecting...");
             disconnect();
+            cleanup_ubus_context();
             return EXIT_FAILURE;
         } else if (ret != OPRT_OK) {
             syslog(LOG_USER | LOG_WARNING, "Error sending data. Retrying...");
@@ -86,6 +89,7 @@ int main(int argc, char **argv)
         }
     }
 
+    cleanup_ubus_context();
     return EXIT_SUCCESS;
 
 }
