@@ -35,6 +35,11 @@ define Package/argp-standalone/description
 	GNU libc hierarchial argument parsing library broken out from glibc.
 endef
 
+ifdef CONFIG_USE_UCLIBC
+CONFIGURE_VARS += \
+    LIBS="-largp"
+endif
+
 MAKE_FLAGS += \
 	CFLAGS="$(TARGET_CFLAGS) $(FPIC) -std=gnu89"
 
@@ -48,6 +53,22 @@ define Build/InstallDev
 	$(INSTALL_DIR) $(1)/usr/lib
 	$(CP) $(PKG_BUILD_DIR)/libargp.a \
 		$(1)/usr/lib/
+endef
+
+define Host/Install
+	$(INSTALL_DIR) $(1)/include
+	$(CP)   $(HOST_BUILD_DIR)/argp.h \
+	$(1)/include/
+	$(INSTALL_DIR) $(1)/lib
+	$(CP)   $(HOST_BUILD_DIR)/libargp.a \
+ 	$(1)/lib/
+endef
+
+define Package/argp-standalone/install
+    $(INSTALL_DIR) $(1)/usr/include
+    $(INSTALL_DIR) $(1)/usr/lib
+    $(CP) $(PKG_BUILD_DIR)/argp.h $(1)/usr/include/
+    $(CP) $(PKG_BUILD_DIR)/libargp.a $(1)/usr/lib/
 endef
 
 $(eval $(call BuildPackage,argp-standalone))
