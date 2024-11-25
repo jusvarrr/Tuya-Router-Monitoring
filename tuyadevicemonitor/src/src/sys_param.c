@@ -1,5 +1,6 @@
+#include <sys_param.h>
 
-#include "sys_param.h"
+static struct ubus_context *ctx = NULL;
 
 enum {
 	TOTAL_MEMORY,
@@ -26,7 +27,10 @@ static void board_cb(struct ubus_request *req, int type, struct blob_attr *msg) 
     struct blob_attr *table[__INFO_MAX];
     struct blob_attr *memory[__MEMORY_MAX];
 
-    blobmsg_parse(info_policy, __INFO_MAX, table, blob_data(msg), blob_len(msg));
+    if (blobmsg_parse(info_policy, __INFO_MAX, table, blob_data(msg), blob_len(msg))!=0) {
+        memset(memoryData, 0, sizeof(*memoryData));
+        return;
+    }
 
     if (table[MEMORY_DATA]) {
         blobmsg_parse(memory_policy, __MEMORY_MAX, memory, blobmsg_data(table[MEMORY_DATA]), blobmsg_data_len(table[MEMORY_DATA]));
@@ -37,20 +41,26 @@ static void board_cb(struct ubus_request *req, int type, struct blob_attr *msg) 
 
 int get_ubus_data(struct MemData *memory)
 {
-    struct ubus_context *ctx;
     uint32_t id;
     int rc = 0;
 
-    ctx = ubus_connect(NULL);
-
-    if (!ctx){
-        return -1;
+    if (!ctx) {
+        ctx = ubus_connect(NULL);
+        if (!ctx) {
+            return -1;
+        }
     }
     
     if (ubus_lookup_id(ctx, "system", &id) || 
         ubus_invoke(ctx, id, "info", NULL, board_cb, memory, 3000))
         rc = -2;
     
-    ubus_free(ctx);
     return rc;
+}
+
+void cleanup_ubus_context() {
+    if (ctx) {
+        ubus_free(ctx);
+        ctx = NULL;
+    }
 }
