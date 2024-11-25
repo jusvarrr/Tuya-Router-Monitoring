@@ -9,7 +9,7 @@ include $(INCLUDE_DIR)/package.mk
 define Package/$(PKG_NAME)
 	CATEGORY:=Base system
 	TITLE:=tuyadevicemonitor
-	DEPENDS:=+libtuyasdk +libubox +libubus
+	DEPENDS:=+libtuyasdk +libubox +libubus +USE_UCLIBC:argp-standalone
 endef
 
 define Package/$(PKG_NAME)/description
