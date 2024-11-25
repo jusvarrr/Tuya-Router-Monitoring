@@ -64,11 +64,4 @@ define Host/Install
  	$(1)/lib/
 endef
 
-define Package/argp-standalone/install
-    $(INSTALL_DIR) $(1)/usr/include
-    $(INSTALL_DIR) $(1)/usr/lib
-    $(CP) $(PKG_BUILD_DIR)/argp.h $(1)/usr/include/
-    $(CP) $(PKG_BUILD_DIR)/libargp.a $(1)/usr/lib/
-endef
-
 $(eval $(call BuildPackage,argp-standalone))
