@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "daemon.h"
+#include <daemon.h>
 #include <syslog.h>
 
 int // returns 0 on success -1 on error
